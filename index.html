@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的视觉作品集 | Portfolio</title>
+    <style>
+        /* --- 基础样式 --- */
+        body {
+            background-color: #0a0a0a; /* 深色背景，显高级 */
+            color: #ffffff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* --- 头部简介 --- */
+        header {
+            text-align: center;
+            padding: 50px 0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 { font-weight: 300; letter-spacing: 2px; }
+        p { color: #888; line-height: 1.6; }
+
+        /* --- 作品网格布局 --- */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* 自适应列宽 */
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 100px;
+        }
+
+        /* --- 单个作品卡片 --- */
+        .item {
+            background: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        .item:hover {
+            transform: translateY(-5px); /* 鼠标悬停上浮效果 */
+        }
+
+        /* --- 图片/视频容器 --- */
+        .media-container {
+            width: 100%;
+            /* 保持 16:9 比例，防止抖动，可根据需要修改 */
+            aspect-ratio: 16 / 9; 
+            background: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* --- 核心：图片与视频样式 --- */
+        img, video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 填满容器 */
+            display: block;
+        }
+
+        /* --- 作品文字说明 --- */
+        .info {
+            padding: 20px;
+        }
+        .info h3 { margin: 0 0 10px 0; font-size: 18px; }
+        .info span { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>VISUAL DESIGNER</h1>
+        <p>这里展示我的动态视觉作品。专注于 AI 生成与后期合成。</p>
+    </header>
+
+    <div class="gallery">
+
+        <!-- 作品 1：如果你非要放 GIF -->
+        <div class="item">
+            <div class="media-container">
+                <!-- loading="lazy" 只有滚动到这里才加载，防止网页卡死 -->
+                <img src="project1.gif" alt="海面浮动效果" loading="lazy">
+            </div>
+            <div class="info">
+                <span>Motion / AI</span>
+                <h3>海面浮动效果 (GIF版)</h3>
+            </div>
+        </div>
+
+        <!-- 作品 2：强烈推荐！用 MP4 替代 GIF -->
+        <!-- 这种写法会自动循环播放，静音，看起来和 GIF 一模一样，但加载极快 -->
+        <div class="item">
+            <div class="media-container">
+                <video autoplay loop muted playsinline>
+                    <source src="project2.mp4" type="video/mp4">
+                    您的浏览器不支持视频播放。
+                </video>
+            </div>
+            <div class="info">
+                <span>After Effects</span>
+                <h3>粒子特效 (MP4版 - 推荐)</h3>
+            </div>
+        </div>
+
+        <!-- 作品 3：复制这个块增加更多作品 -->
+        <div class="item">
+            <div class="media-container">
+                <img src="project3.gif" alt="作品3" loading="lazy">
+            </div>
+            <div class="info">
+                <span>3D Design</span>
+                <h3>赛博朋克城市</h3>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
