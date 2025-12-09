@@ -1,22 +1,40 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>我的作品集 2025</title>
-<style>
-    body { margin:0; padding:0; background-color:#FFFFFF; }
-    .container { max-width:100%; margin:0 auto; background:#FFFFFF; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的作品集 2025</title>
+    <style>
+        /* --- CSS 样式必须是英文 --- */
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #ffffff; 
+        }
+        .container { 
+            max-width: 100%; 
+            margin: 0 auto; 
+        }
+        /* 让视频和图片自适应宽度 */
+        video, img { 
+            width: 100%; 
+            display: block; 
+            margin-bottom: 0px; 
+        }
+    </style>
 </head>
 <body>
-<div class="container">
+    <div class="container">
 
-    <video autoplay loop muted playsinline style="width:100%; display:block; margin-bottom:0px;">
-        <source src="project2.mp4" type="video/mp4">
-    </video>
-    <img src="Frame 24.png" style="width:100%; display:block; margin-bottom:0px;">
+        <!-- 1. 播放视频 (project2.mp4) -->
+        <video autoplay loop muted playsinline>
+            <source src="project2.mp4" type="video/mp4">
+        </video>
 
-</div>
+        <!-- 2. 显示图片 (帧24.png) -->
+        <!-- 注意：必须和你仓库里的文件名一模一样 -->
+        <img src="帧24.png" alt="作品图片">
+        
+    </div>
 </body>
 </html>
