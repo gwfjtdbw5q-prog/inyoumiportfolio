@@ -3,468 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>创建作品集 - 编辑器复刻</title>
+    <title>创建作品集 - 管理后台</title>
     <style>
-        /* --- 全局重置 --- */
+        /* --- 全局样式 --- */
         * { box-sizing: border-box; outline: none; }
-        body, html {
-            margin: 0; padding: 0;
-            height: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #F0F2F5; /* 整个网页的底色 */
-            color: #333;
-            overflow: hidden; /* 禁止整个页面滚动，只让右侧区域滚 */
-        }
+        body, html { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #F0F2F5; overflow: hidden; }
 
         /* --- 布局容器 --- */
-        .app-container {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-        }
+        .app-container { display: flex; height: 100vh; width: 100vw; transition: all 0.3s; }
 
-        /* ============================
-           左侧侧边栏 (Sidebar)
-           ============================ */
-        .sidebar {
-            width: 320px;
-            background: #FFFFFF;
-            border-right: 1px solid #E6E8EB;
-            display: flex;
-            flex-direction: column;
-            padding: 24px 20px;
-            flex-shrink: 0; /* 防止被挤压 */
-            z-index: 10;
-        }
+        /* --- 左侧侧边栏 --- */
+        .sidebar { width: 320px; background: #FFF; border-right: 1px solid #E6E8EB; display: flex; flex-direction: column; padding: 24px 20px; flex-shrink: 0; z-index: 100; transition: transform 0.3s; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .sidebar-header h2 { font-size: 18px; font-weight: 600; margin: 0; }
+        .status-text { font-size: 12px; color: #999; }
+        
+        /* Tab 切换 */
+        .tab-group { background-color: #F5F7FA; border-radius: 8px; padding: 4px; display: flex; margin-bottom: 24px; }
+        .tab-btn { flex: 1; text-align: center; padding: 8px 0; font-size: 14px; color: #666; cursor: pointer; border-radius: 6px; }
+        .tab-btn.active { background-color: #FFF; color: #333; font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
 
-        /* 头部：标题与自动保存 */
-        .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-        .sidebar-header h2 {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 0;
-            color: #1D1D1F;
-        }
-        .status-text {
-            font-size: 12px;
-            color: #999;
-            font-weight: 400;
-        }
-        .back-icon {
-            font-size: 16px;
-            cursor: pointer;
-            color: #333;
-        }
-
-        /* Tab 切换条 (Pill Shape) */
-        .tab-group {
-            background-color: #F5F7FA;
-            border-radius: 8px;
-            padding: 4px;
-            display: flex;
-            margin-bottom: 24px;
-        }
-        .tab-btn {
-            flex: 1;
-            text-align: center;
-            padding: 8px 0;
-            font-size: 14px;
-            color: #666;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-            user-select: none;
-        }
-        .tab-btn.active {
-            background-color: #FFFFFF;
-            color: #333;
-            font-weight: 500;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-        }
-
-        /* 内容区域：上传面板 & 设置面板 */
+        /* 面板显示控制 */
         .panel { display: none; height: 100%; overflow-y: auto; }
         .panel.active { display: block; }
 
-        /* --- 上传面板样式 --- */
-        .upload-btn {
-            width: 100%;
-            height: 80px;
-            background-color: #3A64FF; /* 美叶蓝 */
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-bottom: 20px;
+        /* --- 上传区域 (支持拖拽) --- */
+        .upload-area {
+            width: 100%; height: 100px; background-color: #3A64FF; border-radius: 8px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: white; cursor: pointer; transition: all 0.2s; position: relative;
+            border: 2px solid transparent;
         }
-        .upload-btn:hover { background-color: #2b50d8; }
+        .upload-area:hover { background-color: #2b50d8; }
+        .upload-area.drag-over { background-color: #2b50d8; border-color: #85a1ff; transform: scale(0.99); }
         .upload-icon { font-size: 20px; margin-bottom: 4px; font-weight: bold; }
-        .upload-text { font-size: 14px; font-weight: 500; }
-        .upload-desc { font-size: 10px; opacity: 0.8; margin-top: 2px; transform: scale(0.9); }
+        .upload-desc { font-size: 10px; opacity: 0.8; }
+        #fileInput { display: none; } /* 隐藏原生上传控件 */
 
-        .placeholder-block {
-            width: 100%;
-            height: 100px;
-            background-color: #FAFAFA;
-            border: 1px dashed #E0E0E0;
-            border-radius: 8px;
-            margin-bottom: 12px;
+        /* 侧边栏列表项 */
+        .layer-list { margin-top: 20px; }
+        .layer-item {
+            display: flex; align-items: center; background: #F7F8FA; padding: 10px;
+            border-radius: 6px; margin-bottom: 8px; font-size: 12px; color: #333;
         }
+        .layer-thumb { width: 30px; height: 30px; border-radius: 4px; object-fit: cover; margin-right: 10px; background: #eee; }
+        .layer-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        /* --- 设置面板样式 (你的核心需求) --- */
-        .form-group {
-            margin-bottom: 24px;
-        }
-        .label-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .label-text {
-            font-size: 14px;
-            color: #999;
-        }
-        .help-icon {
-            margin-left: 6px;
-            width: 14px;
-            height: 14px;
-            background: #E0E2E5;
-            color: #FFF;
-            border-radius: 50%;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: help;
-        }
+        /* --- 设置表单 --- */
+        .form-group { margin-bottom: 24px; }
+        .label-row { display: flex; align-items: center; margin-bottom: 8px; font-size: 14px; color: #999; }
+        .help-icon { margin-left: 6px; width: 14px; height: 14px; background: #E0E2E5; color: #FFF; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: help; }
+        .input-wrapper { background-color: #F7F8FA; border-radius: 6px; padding: 0 12px; height: 40px; display: flex; align-items: center; }
+        .custom-input, .custom-select { width: 100%; background: transparent; border: none; font-size: 14px; height: 100%; }
+        .color-preview-box { width: 20px; height: 20px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); cursor: pointer; position: relative; overflow: hidden; }
+        input[type="color"] { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; opacity: 0; cursor: pointer; }
+
+        /* --- 右侧主区域 --- */
+        .main-content { flex: 1; display: flex; flex-direction: column; background-color: #F0F2F5; transition: margin 0.3s; }
+        .top-bar { height: 60px; background: #FFF; border-bottom: 1px solid #E6E8EB; display: flex; justify-content: flex-end; align-items: center; padding: 0 24px; flex-shrink: 0; transition: transform 0.3s; z-index: 90; }
+        .btn { height: 32px; padding: 0 16px; border-radius: 4px; font-size: 13px; cursor: pointer; margin-left: 12px; font-weight: 500; display: flex; align-items: center; border: 1px solid transparent; }
+        .btn-outline { background: #FFF; border-color: #D9D9D9; color: #333; }
+        .btn-primary { background: #1A1A1A; color: #FFF; }
+        .btn-primary:hover { background: #333; }
+
+        /* --- 画布区域 (核心) --- */
+        .canvas-area { flex: 1; padding: 40px; overflow-y: auto; display: flex; justify-content: center; scroll-behavior: smooth; }
+        .artwork-preview { width: 100%; max-width: 1440px; min-height: 1000px; background-color: #FFF; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: all 0.3s; display: flex; flex-direction: column; }
         
-        /* 输入框统一风格：浅灰底，无边框，圆角 */
-        .input-wrapper {
-            background-color: #F7F8FA;
-            border-radius: 6px;
-            padding: 0 12px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            transition: background 0.2s;
+        /* 这里的 img 和 video 样式决定了 PDF 效果 */
+        .artwork-preview img, .artwork-preview video {
+            width: 100%; display: block; margin-bottom: 0; /* 默认无间距 */
         }
-        .input-wrapper:hover {
-            background-color: #EFF1F5;
-        }
+
+        /* --- 预览模式 (Preview Mode) --- */
+        /* 当 body 加上 preview-mode 类时，隐藏所有 UI，只留中间 */
+        body.preview-mode .sidebar { transform: translateX(-320px); width: 0; padding: 0; opacity: 0; }
+        body.preview-mode .top-bar { transform: translateY(-60px); }
+        body.preview-mode .canvas-area { padding: 0; background: #fff; } /* 去掉画布外边距 */
+        body.preview-mode .artwork-preview { box-shadow: none; min-height: 100vh; }
         
-        /* 文本输入框 */
-        .custom-input {
-            width: 100%;
-            background: transparent;
-            border: none;
-            font-size: 14px;
-            color: #333;
-            height: 100%;
+        /* 退出预览按钮 */
+        .exit-preview-btn {
+            position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.5); color: white;
+            padding: 8px 16px; border-radius: 20px; font-size: 12px; cursor: pointer;
+            display: none; z-index: 999;
         }
-        .unit { color: #333; font-size: 14px; margin-left: 8px; }
-
-        /* 颜色选择器 */
-        .color-wrapper {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-        .color-preview-box {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            border: 1px solid rgba(0,0,0,0.1);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        /* 原生 input[type=color] 隐藏在色块上 */
-        input[type="color"] {
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        /* 下拉菜单 */
-        select.custom-select {
-            width: 100%;
-            background: transparent;
-            border: none;
-            font-size: 14px;
-            color: #333;
-            appearance: none; /* 去掉默认箭头 */
-            cursor: pointer;
-            height: 100%;
-        }
-        .select-arrow {
-            font-size: 10px;
-            color: #333;
-            pointer-events: none; /* 穿透点击 */
-        }
-
-
-        /* ============================
-           右侧主区域 (Main Content)
-           ============================ */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: #F0F2F5; /* 外部画布背景 */
-        }
-
-        /* 顶部导航栏 */
-        .top-bar {
-            height: 60px;
-            background: #FFFFFF;
-            border-bottom: 1px solid #E6E8EB;
-            display: flex;
-            justify-content: flex-end; /* 按钮靠右 */
-            align-items: center;
-            padding: 0 24px;
-            flex-shrink: 0;
-        }
-
-        .btn {
-            height: 32px;
-            padding: 0 16px;
-            border-radius: 4px;
-            font-size: 13px;
-            cursor: pointer;
-            margin-left: 12px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-        .btn-outline {
-            background: #FFFFFF;
-            border: 1px solid #D9D9D9;
-            color: #333;
-        }
-        .btn-outline:hover { border-color: #999; }
-        
-        .btn-icon { margin-right: 4px; font-size: 14px; }
-
-        .btn-primary {
-            background: #1A1A1A; /* 黑色发布按钮 */
-            border: 1px solid #1A1A1A;
-            color: #FFF;
-        }
-        .btn-primary:hover {
-            background: #333;
-        }
-
-        /* 预览画布 */
-        .canvas-area {
-            flex: 1;
-            padding: 40px;
-            overflow-y: auto;
-            display: flex;
-            justify-content: center;
-        }
-
-        /* 模拟的 A4 纸 / 网页 */
-        .artwork-preview {
-            width: 100%;
-            max-width: 800px; /* 默认宽度 */
-            min-height: 1000px;
-            background-color: #FFFFFF; /* 动态修改这里的大背景色 */
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            transition: background-color 0.3s;
-            /* 模拟内容 */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ccc;
-            flex-direction: column;
-        }
-        
-        /* 模拟图片占位 */
-        .preview-placeholder {
-            width: 80%;
-            height: 200px;
-            background: #F5F5F5;
-            margin: 10px 0; /* 动态修改这个间距 */
-            border-radius: 4px;
-        }
-
+        body.preview-mode .exit-preview-btn { display: block; }
     </style>
 </head>
 <body>
 
+    <!-- 退出预览的浮窗 -->
+    <div class="exit-preview-btn" onclick="togglePreview(false)">按 ESC 退出预览</div>
+
     <div class="app-container">
-        
-        <!-- 左侧侧边栏 -->
+        <!-- 左侧 -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <div>
-                    <h2>创建作品集</h2>
-                    <div class="status-text" id="auto-save-status">自动保存</div>
-                </div>
-                <div class="back-icon">↩</div>
+                <div><h2>创建作品集</h2><div class="status-text" id="status">自动保存</div></div>
             </div>
 
-            <!-- Tab 切换 -->
             <div class="tab-group">
                 <div class="tab-btn active" onclick="switchTab('content', this)">正文</div>
                 <div class="tab-btn" onclick="switchTab('settings', this)">设置</div>
             </div>
 
-            <!-- Panel 1: 正文 / 上传 -->
+            <!-- 内容面板 -->
             <div id="panel-content" class="panel active">
-                <div class="upload-btn">
-                    <div class="upload-icon">+ 上传图片</div>
-                    <div class="upload-desc">PNG/JPG/GIF/WEBP ≤20M</div>
+                <!-- 拖拽上传区 -->
+                <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">+ 上传图片/视频</div>
+                    <div class="upload-desc">PNG/JPG/GIF/MOV/MP4 ≤100M</div>
+                    <input type="file" id="fileInput" multiple accept="image/*,video/*">
                 </div>
-                
-                <!-- 模拟上传后的列表占位 -->
-                <div class="placeholder-block"></div>
-                <div class="placeholder-block"></div>
-                <div class="placeholder-block"></div>
+                <!-- 已上传列表 -->
+                <div class="layer-list" id="layerList"></div>
             </div>
 
-            <!-- Panel 2: 设置 (UI 重点复刻) -->
+            <!-- 设置面板 -->
             <div id="panel-settings" class="panel">
-                
-                <!-- 1. 作品名称 -->
                 <div class="form-group">
-                    <div class="label-row">
-                        <span class="label-text">作品名称</span>
-                        <div class="help-icon" title="用于展示的标题">?</div>
-                    </div>
+                    <div class="label-row"><span class="label-text">大背景色</span></div>
                     <div class="input-wrapper">
-                        <input type="text" class="custom-input" value="西红柿炒鸡蛋的作品集">
-                    </div>
-                </div>
-
-                <!-- 2. 大背景色 -->
-                <div class="form-group">
-                    <div class="label-row">
-                        <span class="label-text">大背景色</span>
-                        <div class="help-icon" title="作品集的网页背景色">?</div>
-                    </div>
-                    <div class="input-wrapper">
-                        <div class="color-wrapper">
-                            <!-- 显示 Hex 码 -->
-                            <span id="hex-display">#FFFFFF</span>
-                            <!-- 色块预览 + 隐藏的 input color -->
-                            <div class="color-preview-box" id="color-preview" style="background-color: #FFFFFF;">
-                                <input type="color" id="bg-color-picker" value="#FFFFFF" oninput="updateColor(this.value)">
-                            </div>
+                        <div class="color-preview-box" id="color-preview" style="background-color: #FFFFFF;">
+                            <input type="color" oninput="updateBg(this.value)">
                         </div>
+                        <span style="margin-left:10px; font-size:12px; color:#666;">点击色块修改</span>
                     </div>
                 </div>
-
-                <!-- 3. 演示模式 -->
                 <div class="form-group">
-                    <div class="label-row">
-                        <span class="label-text">演示模式</span>
-                        <div class="help-icon" title="图片展示的方式">?</div>
-                    </div>
+                    <div class="label-row"><span class="label-text">图片上下间距</span></div>
                     <div class="input-wrapper">
-                        <select class="custom-select">
-                            <option>自适应浏览器宽度</option>
-                            <option>固定宽度</option>
-                            <option>全屏铺满</option>
-                        </select>
-                        <span class="select-arrow">▼</span>
+                        <input type="number" class="custom-input" value="0" oninput="updateSpacing(this.value)">
+                        <span style="font-size:12px;">px</span>
                     </div>
                 </div>
-
-                <!-- 4. 图片上下间距 -->
-                <div class="form-group">
-                    <div class="label-row">
-                        <span class="label-text">图片上下间距</span>
-                        <div class="help-icon" title="每张图片之间的缝隙">?</div>
-                    </div>
-                    <div class="input-wrapper">
-                        <input type="number" class="custom-input" value="8" id="spacing-input" oninput="updateSpacing(this.value)">
-                        <span class="unit">px</span>
-                    </div>
-                </div>
-
             </div>
         </aside>
 
-        <!-- 右侧主内容区 -->
+        <!-- 右侧 -->
         <main class="main-content">
-            <!-- 顶部按钮 -->
             <div class="top-bar">
-                <button class="btn btn-outline"><span class="btn-icon">⛶</span> 预览</button>
-                <button class="btn btn-outline"><span class="btn-icon">💾</span> 保存</button>
-                <button class="btn btn-primary"><span class="btn-icon">➤</span> 发布</button>
+                <button class="btn btn-outline" onclick="togglePreview(true)">⛶ 预览</button>
+                <button class="btn btn-outline" onclick="alert('已保存到本地缓存')">💾 保存</button>
+                <button class="btn btn-primary" onclick="alert('请将生成的 index.html 上传到 GitHub')">➤ 发布</button>
             </div>
-
-            <!-- 画布预览 -->
-            <div class="canvas-area">
-                <div class="artwork-preview" id="preview-canvas">
-                    <div class="preview-placeholder"></div>
-                    <div class="preview-placeholder"></div>
-                    <div class="preview-placeholder"></div>
-                    <span style="margin-top:20px; color:#ddd;">(预览区域)</span>
+            <div class="canvas-area" id="canvasArea">
+                <div class="artwork-preview" id="previewCanvas">
+                    <!-- 这里会动态插入图片和视频 -->
+                    <div style="padding:50px; text-align:center; color:#ccc;" id="empty-tip">
+                        请从左侧拖入图片或视频
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- 交互逻辑 -->
     <script>
-        // Tab 切换逻辑
-        function switchTab(tabName, btnElement) {
-            // 1. 移除所有 active 样式
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+        const dropArea = document.getElementById('dropArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewCanvas = document.getElementById('previewCanvas');
+        const layerList = document.getElementById('layerList');
+        const emptyTip = document.getElementById('empty-tip');
 
-            // 2. 激活当前点击的
-            btnElement.classList.add('active');
-            document.getElementById('panel-' + tabName).classList.add('active');
+        // 1. 拖拽上传逻辑
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+
+        dropArea.addEventListener('dragover', () => dropArea.classList.add('drag-over'));
+        dropArea.addEventListener('dragleave', () => dropArea.classList.remove('drag-over'));
+        dropArea.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', function() { handleFiles(this.files) });
+
+        function handleDrop(e) {
+            dropArea.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            handleFiles(files);
         }
 
-        // 颜色选择器逻辑
-        function updateColor(color) {
-            // 更新文字显示
-            document.getElementById('hex-display').innerText = color.toUpperCase();
-            // 更新小方块预览
-            document.getElementById('color-preview').style.backgroundColor = color;
-            // 更新右侧画布背景
-            document.getElementById('preview-canvas').style.backgroundColor = color;
+        // 2. 处理文件 (核心：支持视频)
+        function handleFiles(files) {
+            if (files.length > 0) emptyTip.style.display = 'none';
             
-            triggerAutoSave();
-        }
+            ([...files]).forEach(file => {
+                const url = URL.createObjectURL(file);
+                const isVideo = file.type.startsWith('video') || file.name.endsWith('.mov');
+                
+                // A. 添加到侧边栏列表
+                const listItem = document.createElement('div');
+                listItem.className = 'layer-item';
+                listItem.innerHTML = `
+                    <div class="layer-thumb" style="background:${isVideo ? '#000' : `url(${url}) center/cover`}"></div>
+                    <div class="layer-name">${file.name}</div>
+                `;
+                layerList.appendChild(listItem);
 
-        // 间距调整逻辑
-        function updateSpacing(val) {
-            const placeholders = document.querySelectorAll('.preview-placeholder');
-            placeholders.forEach(div => {
-                div.style.marginBottom = val + 'px';
+                // B. 添加到右侧画布
+                let element;
+                if (isVideo) {
+                    // 视频设置：自动播放、循环、静音 (这是网页视频背景的标准写法)
+                    element = document.createElement('video');
+                    element.src = url;
+                    element.autoplay = true;
+                    element.loop = true;
+                    element.muted = true;
+                    element.setAttribute('playsinline', ''); // 兼容手机
+                } else {
+                    element = document.createElement('img');
+                    element.src = url;
+                }
+                
+                // 默认样式
+                element.style.marginBottom = '0px'; 
+                previewCanvas.appendChild(element);
             });
-            triggerAutoSave();
+            
+            document.getElementById('status').innerText = '已自动保存';
         }
 
-        // 模拟自动保存动画
-        let saveTimer;
-        function triggerAutoSave() {
-            const statusDiv = document.getElementById('auto-save-status');
-            statusDiv.innerText = "保存中...";
-            
-            clearTimeout(saveTimer);
-            saveTimer = setTimeout(() => {
-                statusDiv.innerText = "自动保存";
-            }, 1000);
+        // 3. 预览模式逻辑 (隐藏UI)
+        function togglePreview(show) {
+            if (show) {
+                document.body.classList.add('preview-mode');
+            } else {
+                document.body.classList.remove('preview-mode');
+            }
+        }
+        // 按 ESC 退出预览
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') togglePreview(false);
+        });
+
+        // 4. 设置逻辑
+        function switchTab(name, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('panel-' + name).classList.add('active');
+        }
+
+        function updateBg(color) {
+            document.getElementById('color-preview').style.backgroundColor = color;
+            previewCanvas.style.backgroundColor = color;
+        }
+
+        function updateSpacing(val) {
+            const items = previewCanvas.querySelectorAll('img, video');
+            items.forEach(el => el.style.marginBottom = val + 'px');
         }
     </script>
 </body>
