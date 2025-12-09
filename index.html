@@ -1,217 +1,22 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>作品集编辑器 (修复版)</title>
-    <style>
-        /* --- 基础样式 --- */
-        * { box-sizing: border-box; outline: none; }
-        body, html { margin: 0; padding: 0; height: 100%; font-family: sans-serif; background: #F0F2F5; overflow: hidden; }
-        
-        .app-container { display: flex; height: 100vh; width: 100vw; }
-
-        /* --- 左侧侧边栏 --- */
-        .sidebar { width: 320px; background: #FFF; border-right: 1px solid #ddd; display: flex; flex-direction: column; padding: 20px; z-index: 20; }
-        
-        /* 上传按钮 (核心修复：确保能点中) */
-        .upload-box {
-            width: 100%; height: 120px; background: #3A64FF; border-radius: 8px;
-            color: white; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.2s; position: relative;
-        }
-        .upload-box:hover { background: #2a50d8; }
-        .upload-box input { 
-            position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; 
-        }
-        
-        /* 列表 */
-        .file-list { flex: 1; overflow-y: auto; margin-top: 20px; }
-        .file-item { display: flex; align-items: center; background: #f5f5f5; padding: 8px; margin-bottom: 8px; border-radius: 4px; font-size: 12px; }
-        .file-name { margin-left: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-        /* --- 右侧预览区 --- */
-        .main { flex: 1; display: flex; flex-direction: column; background: #eee; position: relative; }
-        
-        .top-bar { 
-            height: 60px; background: #FFF; border-bottom: 1px solid #ddd; 
-            display: flex; justify-content: flex-end; align-items: center; padding: 0 20px; 
-        }
-        .btn { padding: 8px 16px; margin-left: 10px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #fff; }
-        .btn-primary { background: #000; color: #fff; border: 1px solid #000; }
-
-        .canvas-container { flex: 1; overflow-y: auto; padding: 40px; display: flex; justify-content: center; }
-        .preview-paper { 
-            width: 100%; max-width: 1000px; min-height: 800px; background: #fff; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.1); 
-        }
-        
-        /* 预览内容的样式 */
-        .preview-paper img, .preview-paper video { 
-            width: 100%; display: block; margin-bottom: 0; 
-        }
-
-        /* --- 预览模式 (全屏 PDF 效果) --- */
-        body.preview-mode .sidebar { display: none; }
-        body.preview-mode .top-bar { display: none; }
-        body.preview-mode .canvas-container { padding: 0; background: #fff; }
-        body.preview-mode .preview-paper { max-width: 100%; box-shadow: none; }
-        
-        #exit-btn { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.5); color: #fff; padding: 10px; border-radius: 20px; cursor: pointer; display: none; z-index: 999; }
-    </style>
-</head>
-<body>
-
-    <!-- 退出预览按钮 -->
-    <div id="exit-btn" onclick="togglePreview(false)">退出预览 (ESC)</div>
-
-    <div class="app-container">
-        <!-- 左侧 -->
-        <div class="sidebar">
-            <h3 style="margin-top:0;">作品集编辑器</h3>
-            
-            <!-- 上传区 -->
-            <div class="upload-box">
-                <div style="font-size: 24px;">+</div>
-                <div style="font-size: 14px; margin-top: 5px;">点击或拖拽上传</div>
-                <div style="font-size: 10px; opacity: 0.8;">支持 JPG/PNG/GIF/MP4/MOV</div>
-                <!-- 真正的上传控件 -->
-                <input type="file" id="fileInput" multiple accept="image/*,video/*">
-            </div>
-
-            <!-- 设置区 -->
-            <div style="margin-top: 20px;">
-                <label style="font-size:12px; color:#666;">间距 (px)</label>
-                <input type="number" value="0" style="width:100%; margin-top:5px; padding:5px;" oninput="updateSpacing(this.value)">
-            </div>
-
-            <div class="file-list" id="fileList"></div>
-        </div>
-
-        <!-- 右侧 -->
-        <div class="main">
-            <div class="top-bar">
-                <button class="btn" onclick="togglePreview(true)">预览 (PDF模式)</button>
-                <button class="btn btn-primary" onclick="exportCode()">发布 (生成代码)</button>
-            </div>
-            <div class="canvas-container">
-                <div class="preview-paper" id="paper">
-                    <div style="padding:50px; text-align:center; color:#ccc;" id="tip">
-                        暂无内容，请从左侧上传
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const fileInput = document.getElementById('fileInput');
-        const paper = document.getElementById('paper');
-        const fileList = document.getElementById('fileList');
-        const tip = document.getElementById('tip');
-
-        // 1. 监听文件选择
-        fileInput.addEventListener('change', function(e) {
-            handleFiles(this.files);
-        });
-
-        // 2. 处理文件显示
-        function handleFiles(files) {
-            if(files.length > 0) tip.style.display = 'none';
-
-            Array.from(files).forEach(file => {
-                // 创建本地预览链接
-                const url = URL.createObjectURL(file);
-                const isVideo = file.type.startsWith('video') || file.name.endsWith('.mov');
-
-                // 左侧列表
-                const item = document.createElement('div');
-                item.className = 'file-item';
-                item.innerHTML = `<div class="file-name">${file.name}</div>`;
-                fileList.appendChild(item);
-
-                // 右侧预览 (核心)
-                let el;
-                if(isVideo) {
-                    el = document.createElement('video');
-                    el.src = url;
-                    el.autoplay = true;
-                    el.loop = true;
-                    el.muted = true;
-                    el.setAttribute('playsinline', '');
-                    el.setAttribute('data-filename', file.name); // 记住文件名用于生成代码
-                } else {
-                    el = document.createElement('img');
-                    el.src = url;
-                    el.setAttribute('data-filename', file.name);
-                }
-                paper.appendChild(el);
-            });
-        }
-
-        // 3. 预览模式切换
-        function togglePreview(show) {
-            if(show) {
-                document.body.classList.add('preview-mode');
-                document.getElementById('exit-btn').style.display = 'block';
-            } else {
-                document.body.classList.remove('preview-mode');
-                document.getElementById('exit-btn').style.display = 'none';
-            }
-        }
-        // ESC 退出
-        document.addEventListener('keydown', (e) => {
-            if(e.key === 'Escape') togglePreview(false);
-        });
-
-        // 4. 调整间距
-        function updateSpacing(val) {
-            const els = paper.querySelectorAll('img, video');
-            els.forEach(el => el.style.marginBottom = val + 'px');
-        }
-
-        // 5. 核心功能：导出代码
-        function exportCode() {
-            let htmlContent = '';
-            const els = paper.querySelectorAll('img, video');
-            
-            els.forEach(el => {
-                const name = el.getAttribute('data-filename');
-                const margin = el.style.marginBottom || '0px';
-                
-                if(el.tagName === 'VIDEO') {
-                    htmlContent += `
-    <!-- 视频: ${name} -->
-    <video autoplay loop muted playsinline style="width:100%; display:block; margin-bottom:${margin};">
-        <source src="${name}" type="video/mp4">
-    </video>\n`;
-                } else {
-                    htmlContent += `
-    <!-- 图片: ${name} -->
-    <img src="${name}" style="width:100%; display:block; margin-bottom:${margin};">\n`;
-                }
-            });
-
-            const finalCode = `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>我的作品集</title>
-<style>body{margin:0;background:#fff;} img,video{width:100%;display:block;}</style>
+<title>我的作品集 2025</title>
+<style>
+    body { margin:0; padding:0; background-color:#FFFFFF; }
+    .container { max-width:100%; margin:0 auto; background:#FFFFFF; }
+</style>
 </head>
 <body>
-<div style="max-width:1000px; margin:0 auto;">
-${htmlContent}
-</div>
-</body>
-</html>`;
+<div class="container">
 
-            // 复制到剪贴板
-            navigator.clipboard.writeText(finalCode).then(() => {
-                alert('✅ 代码已生成并复制！\n\n请去 GitHub，打开 index.html，把代码粘贴进去，\n然后确保你的图片/视频也上传到了 GitHub 仓库里！');
-            });
-        }
-    </script>
+    <video autoplay loop muted playsinline style="width:100%; display:block; margin-bottom:0px;">
+        <source src="project2.mp4" type="video/mp4">
+    </video>
+    <img src="Frame 24.png" style="width:100%; display:block; margin-bottom:0px;">
+
+</div>
 </body>
 </html>
