@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <!-- 这一行决定了页面在手机/电脑上是否能缩放。你现在的写法是允许缩放的，非常完美！ -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的作品集 2025</title>
     <style>
@@ -14,7 +15,7 @@
         .container { 
             max-width: 100%; 
             margin: 0 auto; 
-            /* 为了防止最下面一张图贴底，给整个容器底部加点留白 */
+            /* 底部留白，防止内容贴底 */
             padding-bottom: 50px;
         }
         
@@ -22,7 +23,7 @@
         video, img { 
             width: 100%; 
             display: block; 
-            /* 👇 修改了这里：给每张图下面加了 5px 的缝隙 */
+            /* 图片之间的间距 5px */
             margin-bottom: 5px; 
         }
     </style>
@@ -30,7 +31,7 @@
 <body>
     <div class="container">
 
-        <!-- 1. 播放视频 (project2.mp4) -->
+        <!-- 1. 播放视频 -->
         <video autoplay loop muted playsinline>
             <source src="project2.mp4" type="video/mp4">
         </video>
@@ -43,10 +44,9 @@
         
     </div>
 
-    <!-- 👇👇👇 统计代码放在这里 👇👇👇 -->
+    <!-- 统计代码 -->
     <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
-<script>LA.init({id:"3OKCcdi6F6qCOMNs",ck:"3OKCcdi6F6qCOMNs"})</script>
-    <!-- 下一步教你在这个位置填什么 -->
+    <script>LA.init({id:"3OKCcdi6F6qCOMNs",ck:"3OKCcdi6F6qCOMNs"})</script>
 
 </body>
 </html>
