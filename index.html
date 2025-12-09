@@ -3,255 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>创建作品集 - 管理后台</title>
+    <title>作品集编辑器 (修复版)</title>
     <style>
-        /* --- 全局样式 --- */
+        /* --- 基础样式 --- */
         * { box-sizing: border-box; outline: none; }
-        body, html { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #F0F2F5; overflow: hidden; }
-
-        /* --- 布局容器 --- */
-        .app-container { display: flex; height: 100vh; width: 100vw; transition: all 0.3s; }
+        body, html { margin: 0; padding: 0; height: 100%; font-family: sans-serif; background: #F0F2F5; overflow: hidden; }
+        
+        .app-container { display: flex; height: 100vh; width: 100vw; }
 
         /* --- 左侧侧边栏 --- */
-        .sidebar { width: 320px; background: #FFF; border-right: 1px solid #E6E8EB; display: flex; flex-direction: column; padding: 24px 20px; flex-shrink: 0; z-index: 100; transition: transform 0.3s; }
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .sidebar-header h2 { font-size: 18px; font-weight: 600; margin: 0; }
-        .status-text { font-size: 12px; color: #999; }
+        .sidebar { width: 320px; background: #FFF; border-right: 1px solid #ddd; display: flex; flex-direction: column; padding: 20px; z-index: 20; }
         
-        /* Tab 切换 */
-        .tab-group { background-color: #F5F7FA; border-radius: 8px; padding: 4px; display: flex; margin-bottom: 24px; }
-        .tab-btn { flex: 1; text-align: center; padding: 8px 0; font-size: 14px; color: #666; cursor: pointer; border-radius: 6px; }
-        .tab-btn.active { background-color: #FFF; color: #333; font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
-
-        /* 面板显示控制 */
-        .panel { display: none; height: 100%; overflow-y: auto; }
-        .panel.active { display: block; }
-
-        /* --- 上传区域 (支持拖拽) --- */
-        .upload-area {
-            width: 100%; height: 100px; background-color: #3A64FF; border-radius: 8px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            color: white; cursor: pointer; transition: all 0.2s; position: relative;
-            border: 2px solid transparent;
+        /* 上传按钮 (核心修复：确保能点中) */
+        .upload-box {
+            width: 100%; height: 120px; background: #3A64FF; border-radius: 8px;
+            color: white; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s; position: relative;
         }
-        .upload-area:hover { background-color: #2b50d8; }
-        .upload-area.drag-over { background-color: #2b50d8; border-color: #85a1ff; transform: scale(0.99); }
-        .upload-icon { font-size: 20px; margin-bottom: 4px; font-weight: bold; }
-        .upload-desc { font-size: 10px; opacity: 0.8; }
-        #fileInput { display: none; } /* 隐藏原生上传控件 */
-
-        /* 侧边栏列表项 */
-        .layer-list { margin-top: 20px; }
-        .layer-item {
-            display: flex; align-items: center; background: #F7F8FA; padding: 10px;
-            border-radius: 6px; margin-bottom: 8px; font-size: 12px; color: #333;
+        .upload-box:hover { background: #2a50d8; }
+        .upload-box input { 
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; 
         }
-        .layer-thumb { width: 30px; height: 30px; border-radius: 4px; object-fit: cover; margin-right: 10px; background: #eee; }
-        .layer-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-        /* --- 设置表单 --- */
-        .form-group { margin-bottom: 24px; }
-        .label-row { display: flex; align-items: center; margin-bottom: 8px; font-size: 14px; color: #999; }
-        .help-icon { margin-left: 6px; width: 14px; height: 14px; background: #E0E2E5; color: #FFF; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: help; }
-        .input-wrapper { background-color: #F7F8FA; border-radius: 6px; padding: 0 12px; height: 40px; display: flex; align-items: center; }
-        .custom-input, .custom-select { width: 100%; background: transparent; border: none; font-size: 14px; height: 100%; }
-        .color-preview-box { width: 20px; height: 20px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); cursor: pointer; position: relative; overflow: hidden; }
-        input[type="color"] { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; opacity: 0; cursor: pointer; }
-
-        /* --- 右侧主区域 --- */
-        .main-content { flex: 1; display: flex; flex-direction: column; background-color: #F0F2F5; transition: margin 0.3s; }
-        .top-bar { height: 60px; background: #FFF; border-bottom: 1px solid #E6E8EB; display: flex; justify-content: flex-end; align-items: center; padding: 0 24px; flex-shrink: 0; transition: transform 0.3s; z-index: 90; }
-        .btn { height: 32px; padding: 0 16px; border-radius: 4px; font-size: 13px; cursor: pointer; margin-left: 12px; font-weight: 500; display: flex; align-items: center; border: 1px solid transparent; }
-        .btn-outline { background: #FFF; border-color: #D9D9D9; color: #333; }
-        .btn-primary { background: #1A1A1A; color: #FFF; }
-        .btn-primary:hover { background: #333; }
-
-        /* --- 画布区域 (核心) --- */
-        .canvas-area { flex: 1; padding: 40px; overflow-y: auto; display: flex; justify-content: center; scroll-behavior: smooth; }
-        .artwork-preview { width: 100%; max-width: 1440px; min-height: 1000px; background-color: #FFF; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: all 0.3s; display: flex; flex-direction: column; }
         
-        /* 这里的 img 和 video 样式决定了 PDF 效果 */
-        .artwork-preview img, .artwork-preview video {
-            width: 100%; display: block; margin-bottom: 0; /* 默认无间距 */
+        /* 列表 */
+        .file-list { flex: 1; overflow-y: auto; margin-top: 20px; }
+        .file-item { display: flex; align-items: center; background: #f5f5f5; padding: 8px; margin-bottom: 8px; border-radius: 4px; font-size: 12px; }
+        .file-name { margin-left: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* --- 右侧预览区 --- */
+        .main { flex: 1; display: flex; flex-direction: column; background: #eee; position: relative; }
+        
+        .top-bar { 
+            height: 60px; background: #FFF; border-bottom: 1px solid #ddd; 
+            display: flex; justify-content: flex-end; align-items: center; padding: 0 20px; 
+        }
+        .btn { padding: 8px 16px; margin-left: 10px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #fff; }
+        .btn-primary { background: #000; color: #fff; border: 1px solid #000; }
+
+        .canvas-container { flex: 1; overflow-y: auto; padding: 40px; display: flex; justify-content: center; }
+        .preview-paper { 
+            width: 100%; max-width: 1000px; min-height: 800px; background: #fff; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.1); 
+        }
+        
+        /* 预览内容的样式 */
+        .preview-paper img, .preview-paper video { 
+            width: 100%; display: block; margin-bottom: 0; 
         }
 
-        /* --- 预览模式 (Preview Mode) --- */
-        /* 当 body 加上 preview-mode 类时，隐藏所有 UI，只留中间 */
-        body.preview-mode .sidebar { transform: translateX(-320px); width: 0; padding: 0; opacity: 0; }
-        body.preview-mode .top-bar { transform: translateY(-60px); }
-        body.preview-mode .canvas-area { padding: 0; background: #fff; } /* 去掉画布外边距 */
-        body.preview-mode .artwork-preview { box-shadow: none; min-height: 100vh; }
+        /* --- 预览模式 (全屏 PDF 效果) --- */
+        body.preview-mode .sidebar { display: none; }
+        body.preview-mode .top-bar { display: none; }
+        body.preview-mode .canvas-container { padding: 0; background: #fff; }
+        body.preview-mode .preview-paper { max-width: 100%; box-shadow: none; }
         
-        /* 退出预览按钮 */
-        .exit-preview-btn {
-            position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.5); color: white;
-            padding: 8px 16px; border-radius: 20px; font-size: 12px; cursor: pointer;
-            display: none; z-index: 999;
-        }
-        body.preview-mode .exit-preview-btn { display: block; }
+        #exit-btn { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.5); color: #fff; padding: 10px; border-radius: 20px; cursor: pointer; display: none; z-index: 999; }
     </style>
 </head>
 <body>
 
-    <!-- 退出预览的浮窗 -->
-    <div class="exit-preview-btn" onclick="togglePreview(false)">按 ESC 退出预览</div>
+    <!-- 退出预览按钮 -->
+    <div id="exit-btn" onclick="togglePreview(false)">退出预览 (ESC)</div>
 
     <div class="app-container">
         <!-- 左侧 -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div><h2>创建作品集</h2><div class="status-text" id="status">自动保存</div></div>
+        <div class="sidebar">
+            <h3 style="margin-top:0;">作品集编辑器</h3>
+            
+            <!-- 上传区 -->
+            <div class="upload-box">
+                <div style="font-size: 24px;">+</div>
+                <div style="font-size: 14px; margin-top: 5px;">点击或拖拽上传</div>
+                <div style="font-size: 10px; opacity: 0.8;">支持 JPG/PNG/GIF/MP4/MOV</div>
+                <!-- 真正的上传控件 -->
+                <input type="file" id="fileInput" multiple accept="image/*,video/*">
             </div>
 
-            <div class="tab-group">
-                <div class="tab-btn active" onclick="switchTab('content', this)">正文</div>
-                <div class="tab-btn" onclick="switchTab('settings', this)">设置</div>
+            <!-- 设置区 -->
+            <div style="margin-top: 20px;">
+                <label style="font-size:12px; color:#666;">间距 (px)</label>
+                <input type="number" value="0" style="width:100%; margin-top:5px; padding:5px;" oninput="updateSpacing(this.value)">
             </div>
 
-            <!-- 内容面板 -->
-            <div id="panel-content" class="panel active">
-                <!-- 拖拽上传区 -->
-                <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
-                    <div class="upload-icon">+ 上传图片/视频</div>
-                    <div class="upload-desc">PNG/JPG/GIF/MOV/MP4 ≤100M</div>
-                    <input type="file" id="fileInput" multiple accept="image/*,video/*">
-                </div>
-                <!-- 已上传列表 -->
-                <div class="layer-list" id="layerList"></div>
-            </div>
-
-            <!-- 设置面板 -->
-            <div id="panel-settings" class="panel">
-                <div class="form-group">
-                    <div class="label-row"><span class="label-text">大背景色</span></div>
-                    <div class="input-wrapper">
-                        <div class="color-preview-box" id="color-preview" style="background-color: #FFFFFF;">
-                            <input type="color" oninput="updateBg(this.value)">
-                        </div>
-                        <span style="margin-left:10px; font-size:12px; color:#666;">点击色块修改</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="label-row"><span class="label-text">图片上下间距</span></div>
-                    <div class="input-wrapper">
-                        <input type="number" class="custom-input" value="0" oninput="updateSpacing(this.value)">
-                        <span style="font-size:12px;">px</span>
-                    </div>
-                </div>
-            </div>
-        </aside>
+            <div class="file-list" id="fileList"></div>
+        </div>
 
         <!-- 右侧 -->
-        <main class="main-content">
+        <div class="main">
             <div class="top-bar">
-                <button class="btn btn-outline" onclick="togglePreview(true)">⛶ 预览</button>
-                <button class="btn btn-outline" onclick="alert('已保存到本地缓存')">💾 保存</button>
-                <button class="btn btn-primary" onclick="alert('请将生成的 index.html 上传到 GitHub')">➤ 发布</button>
+                <button class="btn" onclick="togglePreview(true)">预览 (PDF模式)</button>
+                <button class="btn btn-primary" onclick="exportCode()">发布 (生成代码)</button>
             </div>
-            <div class="canvas-area" id="canvasArea">
-                <div class="artwork-preview" id="previewCanvas">
-                    <!-- 这里会动态插入图片和视频 -->
-                    <div style="padding:50px; text-align:center; color:#ccc;" id="empty-tip">
-                        请从左侧拖入图片或视频
+            <div class="canvas-container">
+                <div class="preview-paper" id="paper">
+                    <div style="padding:50px; text-align:center; color:#ccc;" id="tip">
+                        暂无内容，请从左侧上传
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
     </div>
 
     <script>
-        const dropArea = document.getElementById('dropArea');
         const fileInput = document.getElementById('fileInput');
-        const previewCanvas = document.getElementById('previewCanvas');
-        const layerList = document.getElementById('layerList');
-        const emptyTip = document.getElementById('empty-tip');
+        const paper = document.getElementById('paper');
+        const fileList = document.getElementById('fileList');
+        const tip = document.getElementById('tip');
 
-        // 1. 拖拽上传逻辑
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
+        // 1. 监听文件选择
+        fileInput.addEventListener('change', function(e) {
+            handleFiles(this.files);
         });
-        function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
 
-        dropArea.addEventListener('dragover', () => dropArea.classList.add('drag-over'));
-        dropArea.addEventListener('dragleave', () => dropArea.classList.remove('drag-over'));
-        dropArea.addEventListener('drop', handleDrop);
-        fileInput.addEventListener('change', function() { handleFiles(this.files) });
-
-        function handleDrop(e) {
-            dropArea.classList.remove('drag-over');
-            const files = e.dataTransfer.files;
-            handleFiles(files);
-        }
-
-        // 2. 处理文件 (核心：支持视频)
+        // 2. 处理文件显示
         function handleFiles(files) {
-            if (files.length > 0) emptyTip.style.display = 'none';
-            
-            ([...files]).forEach(file => {
+            if(files.length > 0) tip.style.display = 'none';
+
+            Array.from(files).forEach(file => {
+                // 创建本地预览链接
                 const url = URL.createObjectURL(file);
                 const isVideo = file.type.startsWith('video') || file.name.endsWith('.mov');
-                
-                // A. 添加到侧边栏列表
-                const listItem = document.createElement('div');
-                listItem.className = 'layer-item';
-                listItem.innerHTML = `
-                    <div class="layer-thumb" style="background:${isVideo ? '#000' : `url(${url}) center/cover`}"></div>
-                    <div class="layer-name">${file.name}</div>
-                `;
-                layerList.appendChild(listItem);
 
-                // B. 添加到右侧画布
-                let element;
-                if (isVideo) {
-                    // 视频设置：自动播放、循环、静音 (这是网页视频背景的标准写法)
-                    element = document.createElement('video');
-                    element.src = url;
-                    element.autoplay = true;
-                    element.loop = true;
-                    element.muted = true;
-                    element.setAttribute('playsinline', ''); // 兼容手机
+                // 左侧列表
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.innerHTML = `<div class="file-name">${file.name}</div>`;
+                fileList.appendChild(item);
+
+                // 右侧预览 (核心)
+                let el;
+                if(isVideo) {
+                    el = document.createElement('video');
+                    el.src = url;
+                    el.autoplay = true;
+                    el.loop = true;
+                    el.muted = true;
+                    el.setAttribute('playsinline', '');
+                    el.setAttribute('data-filename', file.name); // 记住文件名用于生成代码
                 } else {
-                    element = document.createElement('img');
-                    element.src = url;
+                    el = document.createElement('img');
+                    el.src = url;
+                    el.setAttribute('data-filename', file.name);
                 }
-                
-                // 默认样式
-                element.style.marginBottom = '0px'; 
-                previewCanvas.appendChild(element);
+                paper.appendChild(el);
             });
-            
-            document.getElementById('status').innerText = '已自动保存';
         }
 
-        // 3. 预览模式逻辑 (隐藏UI)
+        // 3. 预览模式切换
         function togglePreview(show) {
-            if (show) {
+            if(show) {
                 document.body.classList.add('preview-mode');
+                document.getElementById('exit-btn').style.display = 'block';
             } else {
                 document.body.classList.remove('preview-mode');
+                document.getElementById('exit-btn').style.display = 'none';
             }
         }
-        // 按 ESC 退出预览
+        // ESC 退出
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') togglePreview(false);
+            if(e.key === 'Escape') togglePreview(false);
         });
 
-        // 4. 设置逻辑
-        function switchTab(name, btn) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('panel-' + name).classList.add('active');
-        }
-
-        function updateBg(color) {
-            document.getElementById('color-preview').style.backgroundColor = color;
-            previewCanvas.style.backgroundColor = color;
-        }
-
+        // 4. 调整间距
         function updateSpacing(val) {
-            const items = previewCanvas.querySelectorAll('img, video');
-            items.forEach(el => el.style.marginBottom = val + 'px');
+            const els = paper.querySelectorAll('img, video');
+            els.forEach(el => el.style.marginBottom = val + 'px');
+        }
+
+        // 5. 核心功能：导出代码
+        function exportCode() {
+            let htmlContent = '';
+            const els = paper.querySelectorAll('img, video');
+            
+            els.forEach(el => {
+                const name = el.getAttribute('data-filename');
+                const margin = el.style.marginBottom || '0px';
+                
+                if(el.tagName === 'VIDEO') {
+                    htmlContent += `
+    <!-- 视频: ${name} -->
+    <video autoplay loop muted playsinline style="width:100%; display:block; margin-bottom:${margin};">
+        <source src="${name}" type="video/mp4">
+    </video>\n`;
+                } else {
+                    htmlContent += `
+    <!-- 图片: ${name} -->
+    <img src="${name}" style="width:100%; display:block; margin-bottom:${margin};">\n`;
+                }
+            });
+
+            const finalCode = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的作品集</title>
+<style>body{margin:0;background:#fff;} img,video{width:100%;display:block;}</style>
+</head>
+<body>
+<div style="max-width:1000px; margin:0 auto;">
+${htmlContent}
+</div>
+</body>
+</html>`;
+
+            // 复制到剪贴板
+            navigator.clipboard.writeText(finalCode).then(() => {
+                alert('✅ 代码已生成并复制！\n\n请去 GitHub，打开 index.html，把代码粘贴进去，\n然后确保你的图片/视频也上传到了 GitHub 仓库里！');
+            });
         }
     </script>
 </body>
