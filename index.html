@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的作品集 2025</title>
     <style>
-        /* --- CSS 样式必须是英文 --- */
+        /* --- CSS 样式 --- */
         body { 
             margin: 0; 
             padding: 0; 
@@ -14,12 +14,16 @@
         .container { 
             max-width: 100%; 
             margin: 0 auto; 
+            /* 为了防止最下面一张图贴底，给整个容器底部加点留白 */
+            padding-bottom: 50px;
         }
+        
         /* 让视频和图片自适应宽度 */
         video, img { 
             width: 100%; 
             display: block; 
-            margin-bottom: 0px; 
+            /* 👇 修改了这里：给每张图下面加了 5px 的缝隙 */
+            margin-bottom: 5px; 
         }
     </style>
 </head>
@@ -31,13 +35,18 @@
             <source src="project2.mp4" type="video/mp4">
         </video>
 
-        <!-- 2. 显示图片 (FsUfDcVbINJzU70sDFbQtLdSzO-C.png) -->
-        <!-- 注意：必须和你仓库里的文件名一模一样 -->
+        <!-- 2. 显示图片 -->
         <img src="FsUfDcVbINJzU70sDFbQtLdSzO-C.png" alt="作品图片">
 
-      <!-- 图片必须用 img 标签 -->
-<img src="Frame 24.png" alt="第三张图">
+        <!-- 3. 第三张图 -->
+        <img src="Frame 24.png" alt="第三张图">
         
     </div>
+
+    <!-- 👇👇👇 统计代码放在这里 👇👇👇 -->
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+<script>LA.init({id:"3OKCcdi6F6qCOMNs",ck:"3OKCcdi6F6qCOMNs"})</script>
+    <!-- 下一步教你在这个位置填什么 -->
+
 </body>
 </html>
