@@ -2,76 +2,49 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 禁止手机双击放大，保持页面稳定 -->
+    <!-- 禁止手机双击放大 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>冯志成-27届-立即到岗 2026</title>
     
-    <!-- Emoji 图标 -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
 
     <style>
         body { 
-            margin: 0; 
-            padding: 0; 
-            background-color: #f9f9f9; 
+            margin: 0; padding: 0; background-color: #f9f9f9; 
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
-            -webkit-user-select: none; user-select: none; /* 禁止选中文字 */
-            overflow-x: hidden; /* ✨ 修复：防止页面左右晃动 */
+            -webkit-user-select: none; user-select: none; 
+            overflow-x: hidden; 
         }
 
-        /* --- ✨ 防盗水印 (颜色调淡了，不影响看图) --- */
+        /* --- 防盗水印 --- */
         body::after {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 200%; height: 200%;
+            content: ""; position: fixed; top: 0; left: 0; width: 200%; height: 200%;
             transform: rotate(-30deg) translate(-20%, -20%);
-            /* 这里的 fill='%23cccccc' 把水印改成了浅灰色 */
             background-image: url("data:image/svg+xml,%3Csvg width='300' height='300' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50%25' y='50%25' font-size='20' fill='%23cccccc' fill-opacity='0.5' text-anchor='middle' dominant-baseline='middle' transform='rotate(-45, 150, 150)'%3E27届-fengzhicheng%3C/text%3E%3C/svg%3E");
-            opacity: 0.6; 
-            pointer-events: none;
-            z-index: 9999;
+            opacity: 0.6; pointer-events: none; z-index: 9999;
         }
 
         .container { 
-            max-width: 800px; 
-            margin: 0 auto; 
-            padding-bottom: 120px;
-            background-color: #ffffff; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
-            filter: blur(20px); /* 初始模糊 */
-            opacity: 0.8;
+            max-width: 800px; margin: 0 auto; padding-bottom: 120px;
+            background-color: #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            filter: blur(20px); opacity: 0.8;
             transition: filter 0.5s ease-out, opacity 0.5s;
             min-height: 100vh;
         }
-        
-        /* 页面加载完后，模糊消失 */
-        .container.loaded-clear {
-            filter: blur(0);
-            opacity: 1;
-        }
+        .container.loaded-clear { filter: blur(0); opacity: 1; }
         
         .media-box {
-            position: relative;
-            background-color: #f0f0f0; 
-            margin-bottom: 5px;
-            /* 增加一个最小高度，防止图片没出来时页面是扁的 */
-            min-height: 200px; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: relative; background-color: #f0f0f0; margin-bottom: 5px;
+            min-height: 200px; display: flex; align-items: center; justify-content: center;
         }
 
         video, img { 
-            width: 100%; 
-            display: block; 
-            animation: fadeIn 0.6s ease-in;
-            background-color: #fff;
-            -webkit-user-drag: none; user-drag: none; /* 禁止拖拽图片 */
+            width: 100%; display: block; animation: fadeIn 0.6s ease-in;
+            background-color: #fff; -webkit-user-drag: none; user-drag: none;
         }
-
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- 进度条和小猫 --- */
+        /* --- 进度条 --- */
         .progress-container {
             position: fixed; bottom: 30px; left: 50%;
             transform: translateX(-50%); width: 90%; max-width: 600px; 
@@ -84,17 +57,29 @@
             position: relative;
         }
         @keyframes waterFlow { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
-        
         .running-cat {
             position: absolute; right: -20px; top: -38px; width: 40px; 
             background: transparent !important;
         }
 
-        /* --- 悬浮按钮 --- */
+        /* --- ✨ 悬浮按钮 (修改版) --- */
         .floating-tools {
             position: fixed; bottom: 100px; right: 20px; z-index: 1000;
             display: flex; flex-direction: column; gap: 15px;
+            
+            /* 增加过渡动画，让消失和出现更丝滑 */
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 1;
+            transform: translateY(0);
         }
+
+        /* 当添加这个类名时，隐藏按钮 */
+        .floating-tools.hide-tools {
+            opacity: 0;
+            transform: translateY(50px); /* 往下沉一点 */
+            pointer-events: none; /* 隐藏时禁止点击 */
+        }
+
         .tool-btn {
             width: 45px; height: 45px; background: rgba(255, 255, 255, 0.9);
             border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.15);
@@ -102,27 +87,35 @@
             font-size: 20px; cursor: pointer;
         }
         .wechat-btn:hover .qr-popup { display: block; }
+        
         .qr-popup {
-            position: absolute; bottom: 55px; right: 0; width: 150px;
-            background: white; padding: 10px; border-radius: 10px;
+            position: absolute; bottom: 55px; right: 0; width: 140px;
+            background: white; padding: 12px; border-radius: 10px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.2); display: none; text-align: center;
         }
-        .qr-popup img { width: 100%; margin-bottom: 5px; }
-        .qr-popup p { margin: 0; font-size: 12px; color: #666; }
+        .qr-popup img { width: 100%; margin-bottom: 8px; display: block; }
+        
+        /* 扫码文字 */
+        .qr-popup p { margin: 0; font-size: 13px; color: #333; font-weight: bold; }
+        
+        /* ✨ 新增：电话号码样式 */
+        .phone-num { 
+            margin-top: 4px !important; /* 强制间距 */
+            font-size: 11px !important; /* 小小字体 */
+            color: #888 !important; 
+            font-weight: normal !important;
+        }
     </style>
 </head>
 
 <body oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
     
     <div class="container">
-
-        <!-- ▼▼▼▼▼ 作品区域开始 ▼▼▼▼▼ -->
-        
         <!-- 1. 图片 -->
         <div class="media-box"><img src="1.png" alt="图1" fetchpriority="high"></div>
         <div class="media-box"><img src="2.png" alt="图2" loading="lazy"></div>
         
-        <!-- 2. 视频 (海报图 poster 记得一定要改) -->
+        <!-- 2. 视频 -->
         <div class="media-box">
             <video autoplay loop muted playsinline poster="001.jpg">
                 <source src="3444.mp4" type="video/mp4">
@@ -139,8 +132,7 @@
             </video>
         </div>
         
-        <!-- ▼▼▼▼▼ 后续加图直接复制下面的代码 ▼▼▼▼▼ -->
-
+        <!-- 后续图片 -->
         <div class="media-box"><img src="4.jpg" alt="图" loading="lazy"></div>
         <div class="media-box"><img src="2-01.jpg" alt="图" loading="lazy"></div>
         <div class="media-box"><img src="2-2.jpg" alt="图" loading="lazy"></div>
@@ -151,10 +143,6 @@
         <div class="media-box"><img src="2-7.jpg" alt="图" loading="lazy"></div>
         <div class="media-box"><img src="2-8.jpg" alt="图" loading="lazy"></div>
         <div class="media-box"><img src="2-9.jpg" alt="图" loading="lazy"></div>
-        
-        <!-- 如果要加新图，就在这里粘贴：
-        <div class="media-box"><img src="新图片名字.jpg" alt="图" loading="lazy"></div>
-        -->
 
         <div class="media-box"><img src="3-0.png" alt="图" loading="lazy"></div>
         <div class="media-box"><img src="3-1.png" alt="图" loading="lazy"></div>
@@ -170,9 +158,9 @@
         <div class="media-box"><img src="4-1.jpg" alt="图" loading="lazy"></div>
         <div class="media-box"><img src="4-2.jpg" alt="图" loading="lazy"></div>
         <div class="media-box"><img src="4-3.jpg" alt="图" loading="lazy"></div>
+        <!-- 最后一张图 -->
         <div class="media-box"><img src="4-4.jpg" alt="图" loading="lazy"></div>
-        
-        <!-- ▲▲▲▲▲ 作品区域结束 ▲▲▲▲▲ -->
+
     </div>
 
     <!-- 进度条结构 -->
@@ -182,40 +170,60 @@
         </div>
     </div>
 
-    <!-- 悬浮工具栏 -->
+    <!-- 悬浮工具栏 (CSS已更新支持隐藏) -->
     <div class="floating-tools">
         <div class="tool-btn wechat-btn">
             💬
             <div class="qr-popup">
                 <img src="wechat.jpg" alt="微信二维码">
                 <p>扫码联系我</p>
+                <!-- ✨ 新增：电话号码 -->
+                <p class="phone-num">182 9124 0654</p>
             </div>
         </div>
         <div class="tool-btn top-btn" onclick="scrollToTop()">⬆️</div>
     </div>
 
     <script>
-        // 进度条逻辑
-        window.onscroll = function() {
+        // 1. 获取悬浮按钮元素
+        var tools = document.querySelector('.floating-tools');
+        var isScrolling;
+
+        // 2. 监听滚动事件
+        window.addEventListener('scroll', function() {
+            // --- A. 更新进度条逻辑 ---
             var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
             var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
             if (height > 0) {
                 var scrolled = (winScroll / height) * 100;
                 document.getElementById("myBar").style.width = scrolled + "%";
             }
-        };
+
+            // --- B. 按钮隐藏逻辑 (新增) ---
+            
+            // 只要在滚动，就加上 hide-tools 类名 (变透明)
+            tools.classList.add('hide-tools');
+
+            // 清除之前的定时器
+            window.clearTimeout(isScrolling);
+
+            // 重新设置定时器：如果 500毫秒 (0.5秒) 内没有新的滚动，就认为是“停止滑动”了
+            isScrolling = setTimeout(function() {
+                // 停止后，移除类名 (显示出来)
+                tools.classList.remove('hide-tools');
+            }, 500);
+
+        }, false);
 
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // ✨ 改进：页面加载完立刻变清晰，不用傻等
+        // 页面加载显示
         function showPage() {
             document.querySelector('.container').classList.add('loaded-clear');
         }
-        // 如果网速快，加载完立刻显示
         window.addEventListener('load', showPage);
-        // 如果网速慢，最慢3秒后强制显示
         setTimeout(showPage, 3000);
     </script>
 
