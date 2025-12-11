@@ -5,33 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的作品集 2025</title>
     
-    <!-- ✨ 1. 新增：Emoji 网页图标 (Favicon) -->
+    <!-- Emoji 图标 -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
 
     <style>
-        /* --- CSS 样式 --- */
         body { 
             margin: 0; 
             padding: 0; 
-            background-color: #f9f9f9; /* 整个网页背景稍微灰一点，突出中间的白纸 */
+            background-color: #f9f9f9; 
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
         }
         .container { 
-            max-width: 800px; /* 限制最大宽度，大屏更好看 */
+            max-width: 800px; 
             margin: 0 auto; 
             padding-bottom: 50px;
             background-color: #ffffff; 
-            
-            /* ✨ 2. 新增：高级阴影效果 */
-            /* 这种阴影会让你的作品集像一张浮在桌面的纸，很有质感 */
             box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
         }
         
-        /* ✨ 3. 新增：图片/视频的容器盒子 */
         .media-box {
             position: relative;
-            background-color: #f0f0f0; /* 浅灰色占位背景 */
-            min-height: 200px; /* 最小高度，保证没加载出来时也有位置 */
+            background-color: #f0f0f0; 
+            min-height: 200px; 
             margin-bottom: 5px;
             display: flex;
             align-items: center;
@@ -39,30 +34,24 @@
             overflow: hidden;
         }
 
-        /* ✨ 4. 新增：加载时的可爱提示文字 */
         .media-box::before {
-            content: "稍等一下哟,,Ծ‸Ծ,,"; /* 颜文字提示 */
+            content: "稍等一下哟,,Ծ‸Ծ,,"; 
             color: #aaaaaa;
             font-size: 14px;
             position: absolute;
-            z-index: 0; /* 放在最底层 */
+            z-index: 0; 
         }
 
-        /* 图片和视频样式 */
         video, img { 
             width: 100%; 
             display: block; 
             position: relative;
-            z-index: 1; /* 加载出来后盖住文字 */
-            
-            /* 加上淡入动画 */
+            z-index: 1; 
             animation: fadeIn 0.6s ease-in;
-            /* 保持图片比例，填满盒子 */
             object-fit: cover; 
-            background-color: #ffffff; /* 防止透明PNG透出底下的字 */
+            background-color: #ffffff; 
         }
 
-        /* 定义淡入动画 */
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -74,35 +63,37 @@
 
         <!-- 1. 第一张图 -->
         <div class="media-box">
-            <img src="images/1.png" alt="第一张图" fetchpriority="high">
+            <!-- 👇 改回了 1.png (去掉了 images/) -->
+            <img src="1.png" alt="第一张图" fetchpriority="high">
         </div>
 
         <!-- 2. 第二张图 -->
         <div class="media-box">
-            <img src="images/2.png" alt="第二张图" loading="lazy">          
+            <img src="2.png" alt="第二张图" loading="lazy">          
         </div>
         
         <!-- 3. 播放视频 -->
         <div class="media-box">
             <video autoplay loop muted playsinline preload="auto">
-                <source src="images/3444.mp4" type="video/mp4">
+                <source src="3444.mp4" type="video/mp4">
             </video>
         </div>
 
         <!-- 4. 第四张图 -->
         <div class="media-box">
-            <img src="images/Frame 24.png" alt="第四张图" loading="lazy">
+            <!-- 注意文件名里的空格 -->
+            <img src="Frame 24.png" alt="第四张图" loading="lazy">
         </div>
 
          <!-- 5. 第五张图 -->
         <div class="media-box">
-            <img src="images/108.png" alt="第五张图" loading="lazy">
+            <img src="108.png" alt="第五张图" loading="lazy">
         </div>
 
         <!-- 6. 播放视频 -->
         <div class="media-box">
             <video autoplay loop muted playsinline preload="auto">
-                <source src="images/1081.mp4" type="video/mp4">
+                <source src="1081.mp4" type="video/mp4">
             </video>
         </div>
         
