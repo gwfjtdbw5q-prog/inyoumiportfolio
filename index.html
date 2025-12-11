@@ -18,10 +18,22 @@
         .container { 
             max-width: 800px; 
             margin: 0 auto; 
-            /* 底部留出足够空间，防止内容被进度条挡住 */
             padding-bottom: 120px;
             background-color: #ffffff; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            
+            /* ✨ 核心：默认高斯模糊 20px */
+            filter: blur(20px);
+            /* ✨ 过渡动画 1.5秒 */
+            transition: filter 1.5s ease-out;
+            /* 初始透明度稍微低一点，配合模糊更自然 */
+            opacity: 0.8;
+        }
+
+        /* ✨ 当加载完成后，变成清晰状态 */
+        .container.loaded-clear {
+            filter: blur(0);
+            opacity: 1;
         }
         
         .media-box {
@@ -58,32 +70,30 @@
             to { opacity: 1; }
         }
 
-        /* --- ✨ 新增：光感进度条样式 --- */
+        /* --- 光感进度条样式 --- */
         .progress-container {
-            position: fixed; /* 固定在屏幕底部 */
+            position: fixed; 
             bottom: 30px; 
             left: 50%;
-            transform: translateX(-50%); /* 居中 */
+            transform: translateX(-50%); 
             width: 90%; 
             max-width: 600px; 
-            height: 12px; /* 进度条高度 */
-            background: rgba(0, 0, 0, 0.6); /* 深色半透明底槽 */
+            height: 12px; 
+            background: rgba(0, 0, 0, 0.6); 
             border-radius: 20px; 
             backdrop-filter: blur(10px); 
             z-index: 999;
             padding: 3px; 
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            /* 初始隐藏，等滚动了再显示，或者一直显示都可以 */
             transition: opacity 0.3s;
         }
 
         .progress-bar {
             height: 100%;
-            width: 0%; /* 初始宽度0，JS控制 */
-            /* ✨ 光感渐变色：橙色系 */
+            width: 0%; 
             background: linear-gradient(90deg, #ff9a9e 0%, #fecfef 50%, #f6d365 100%); 
             border-radius: 20px;
-            box-shadow: 0 0 15px rgba(246, 211, 101, 0.8); /* 发光 */
+            box-shadow: 0 0 15px rgba(246, 211, 101, 0.8); 
             transition: width 0.1s linear;
             position: relative;
         }
@@ -91,22 +101,71 @@
         /* 奔跑的小猫 */
         .running-cat {
             position: absolute;
-            right: -20px; /* 让猫位于进度条的最右端 */
-            top: -35px; /* 站在进度条上面 */
-            width: 40px; /* 猫的大小 */
+            right: -20px; 
+            top: -35px; 
+            width: 40px; 
             height: auto;
             z-index: 1000;
-            background: transparent !important; /* 强制背景透明 */
-            box-shadow: none !important; /* 去掉图片的阴影 */
-            animation: none !important; /* 去掉淡入动画 */
+            background: transparent !important; 
+            box-shadow: none !important; 
+            animation: none !important; 
         }
-        /* 覆盖 media-box 里的通用 img 样式，防止小猫被影响 */
         .progress-container img {
             display: inline-block;
             margin-bottom: 0;
             min-height: auto;
             background-color: transparent;
         }
+
+        /* --- 悬浮工具栏样式 --- */
+        .floating-tools {
+            position: fixed;
+            bottom: 100px; 
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            /* 工具栏本身不需要模糊，所以放在 container 外面 */
+        }
+
+        .tool-btn {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .tool-btn:hover {
+            transform: scale(1.1);
+            background: #ffffff;
+        }
+
+        .wechat-btn { position: relative; }
+        .qr-popup {
+            position: absolute;
+            bottom: 55px;
+            right: 0;
+            width: 150px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: none; 
+            text-align: center;
+        }
+        .qr-popup img { width: 100%; margin-bottom: 5px; }
+        .qr-popup p { margin: 0; font-size: 12px; color: #666; }
+
+        .wechat-btn:hover .qr-popup { display: block; }
     </style>
 </head>
 <body>
@@ -178,106 +237,53 @@
     <!-- ✨ 进度条结构 -->
     <div class="progress-container">
         <div class="progress-bar" id="myBar">
-            <!-- 小猫 GIF -->
             <img src="cat.gif" class="running-cat" alt="cat">
         </div>
     </div>
 
-    <script>
-        // --- 监听滚动，控制进度条和小猫 ---
-        window.onscroll = function() {
-            var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-            var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            var scrolled = (winScroll / height) * 100;
-            
-            // 更新进度条宽度
-            document.getElementById("myBar").style.width = scrolled + "%";
-        };
-    </script>
-
-    <!-- 统计代码 -->
-    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
-    <script>LA.init({id:"3OKCcdi6F6qCOMNs",ck:"3OKCcdi6F6qCOMNs"})</script>
-
-        <!-- ✨ 悬浮工具栏结构 -->
+    <!-- ✨ 悬浮工具栏结构 -->
     <div class="floating-tools">
-        <!-- 微信按钮 -->
         <div class="tool-btn wechat-btn">
             💬
-            <!-- 二维码弹窗 -->
             <div class="qr-popup">
-                <!-- 请把你的微信二维码命名为 wechat.jpg 上传 -->
                 <img src="wechat.jpg" alt="加我微信">
                 <p>扫码联系我</p>
             </div>
         </div>
-        
-        <!-- 回到顶部按钮 -->
         <div class="tool-btn top-btn" onclick="scrollToTop()">
             ⬆️
         </div>
     </div>
 
-    <style>
-        /* --- 悬浮工具栏样式 --- */
-        .floating-tools {
-            position: fixed;
-            bottom: 100px; /* 在进度条上面一点 */
-            right: 20px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .tool-btn {
-            width: 45px;
-            height: 45px;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(5px);
-            border-radius: 50%;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        .tool-btn:hover {
-            transform: scale(1.1);
-            background: #ffffff;
-        }
-
-        /* 微信二维码弹窗 */
-        .wechat-btn { position: relative; }
-        .qr-popup {
-            position: absolute;
-            bottom: 55px;
-            right: 0;
-            width: 150px;
-            background: white;
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            display: none; /* 默认隐藏 */
-            text-align: center;
-        }
-        .qr-popup img { width: 100%; margin-bottom: 5px; }
-        .qr-popup p { margin: 0; font-size: 12px; color: #666; }
-
-        /* 鼠标悬停显示二维码 */
-        .wechat-btn:hover .qr-popup { display: block; }
-
-    </style>
-
     <script>
-        // --- 回到顶部功能 ---
+        // --- 监听滚动，控制进度条 ---
+        window.onscroll = function() {
+            var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            var scrolled = (winScroll / height) * 100;
+            document.getElementById("myBar").style.width = scrolled + "%";
+        };
+
+        // --- 回到顶部 ---
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+
+        // --- ✨ 开屏高斯模糊移除逻辑 ---
+        window.addEventListener('load', function() {
+            // 当所有资源加载完，移除模糊
+            document.querySelector('.container').classList.add('loaded-clear');
+        });
+        
+        // 保底：3秒后强制变清晰（防止网太慢一直糊着）
+        setTimeout(function() {
+            document.querySelector('.container').classList.add('loaded-clear');
+        }, 3000);
     </script>
+
+    <!-- 统计代码 -->
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+    <script>LA.init({id:"3OKCcdi6F6qCOMNs",ck:"3OKCcdi6F6qCOMNs"})</script>
 
 </body>
 </html>
