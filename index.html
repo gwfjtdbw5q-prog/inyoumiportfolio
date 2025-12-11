@@ -18,7 +18,8 @@
         .container { 
             max-width: 800px; 
             margin: 0 auto; 
-            padding-bottom: 50px;
+            /* 底部留出足够空间，防止内容被进度条挡住 */
+            padding-bottom: 120px;
             background-color: #ffffff; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
         }
@@ -56,6 +57,56 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+
+        /* --- ✨ 新增：光感进度条样式 --- */
+        .progress-container {
+            position: fixed; /* 固定在屏幕底部 */
+            bottom: 30px; 
+            left: 50%;
+            transform: translateX(-50%); /* 居中 */
+            width: 90%; 
+            max-width: 600px; 
+            height: 12px; /* 进度条高度 */
+            background: rgba(0, 0, 0, 0.6); /* 深色半透明底槽 */
+            border-radius: 20px; 
+            backdrop-filter: blur(10px); 
+            z-index: 999;
+            padding: 3px; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            /* 初始隐藏，等滚动了再显示，或者一直显示都可以 */
+            transition: opacity 0.3s;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%; /* 初始宽度0，JS控制 */
+            /* ✨ 光感渐变色：橙色系 */
+            background: linear-gradient(90deg, #ff9a9e 0%, #fecfef 50%, #f6d365 100%); 
+            border-radius: 20px;
+            box-shadow: 0 0 15px rgba(246, 211, 101, 0.8); /* 发光 */
+            transition: width 0.1s linear;
+            position: relative;
+        }
+
+        /* 奔跑的小猫 */
+        .running-cat {
+            position: absolute;
+            right: -20px; /* 让猫位于进度条的最右端 */
+            top: -35px; /* 站在进度条上面 */
+            width: 40px; /* 猫的大小 */
+            height: auto;
+            z-index: 1000;
+            background: transparent !important; /* 强制背景透明 */
+            box-shadow: none !important; /* 去掉图片的阴影 */
+            animation: none !important; /* 去掉淡入动画 */
+        }
+        /* 覆盖 media-box 里的通用 img 样式，防止小猫被影响 */
+        .progress-container img {
+            display: inline-block;
+            margin-bottom: 0;
+            min-height: auto;
+            background-color: transparent;
+        }
     </style>
 </head>
 <body>
@@ -63,7 +114,6 @@
 
         <!-- 1. 第一张图 -->
         <div class="media-box">
-            <!-- 👇 改回了 1.png (去掉了 images/) -->
             <img src="1.png" alt="第一张图" fetchpriority="high">
         </div>
 
@@ -81,7 +131,6 @@
 
         <!-- 4. 第四张图 -->
         <div class="media-box">
-            <!-- 注意文件名里的空格 -->
             <img src="33.jpg" alt="第四张图" loading="lazy">
         </div>
 
@@ -97,134 +146,54 @@
             </video>
         </div>
 
-         <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="4.jpg" alt="第六张图" loading="lazy">
-        </div>
-
-        <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="2-1 (1).jpg" alt="第六张图" loading="lazy">
-        </div>
-
-        <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="2-2.jpg" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="2-3.jpg" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="2-4.jpg" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="2-5.jpg" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="2-6.jpg" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="2-7.jpg" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="2-8.jpg" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="2-9.jpg" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="3-0.png" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="3-1.png" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="3-2.png" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="3-3.png" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="3-4.png" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="3-5.png" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="3-6.png" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="3-7.png" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="3-8.jpg" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="3-9.jpg" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="4-0.png" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="4-1.jpg" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="4-2.jpg" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="4-3.jpg" alt="第六张图" loading="lazy">
-        </div>
-
-          <!-- 5. 第五张图 -->
-        <div class="media-box">
-            <img src="4-4.jpg" alt="第六张图" loading="lazy">
-        </div>
-
-        
+         <!-- 后续图片... -->
+        <div class="media-box"><img src="4.jpg" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="2-01.jpg" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="2-2.jpg" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="2-3.jpg" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="2-4.jpg" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="2-5.jpg" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="2-6.jpg" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="2-7.jpg" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="2-8.jpg" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="2-9.jpg" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="3-0.png" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="3-1.png" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="3-2.png" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="3-3.png" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="3-4.png" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="3-5.png" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="3-6.png" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="3-7.png" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="3-8.jpg" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="3-9.jpg" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="4-0.png" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="4-1.jpg" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="4-2.jpg" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="4-3.jpg" alt="图" loading="lazy"></div>
+        <div class="media-box"><img src="4-4.jpg" alt="图" loading="lazy"></div>
         
     </div>
+
+    <!-- ✨ 进度条结构 -->
+    <div class="progress-container">
+        <div class="progress-bar" id="myBar">
+            <!-- 小猫 GIF -->
+            <img src="cat.gif" class="running-cat" alt="cat">
+        </div>
+    </div>
+
+    <script>
+        // --- 监听滚动，控制进度条和小猫 ---
+        window.onscroll = function() {
+            var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            var scrolled = (winScroll / height) * 100;
+            
+            // 更新进度条宽度
+            document.getElementById("myBar").style.width = scrolled + "%";
+        };
+    </script>
 
     <!-- 统计代码 -->
     <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
