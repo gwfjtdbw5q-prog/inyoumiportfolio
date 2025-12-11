@@ -211,9 +211,20 @@ body::after {
             <img src="2.png" alt="第二张图" loading="lazy">          
         </div>
         
-        <!-- 3. 播放视频 -->
+             <!-- 3. 播放视频 (已加强微信兼容性) -->
         <div class="media-box">
-            <video autoplay loop muted playsinline preload="auto">
+            <!-- 
+               poster="1.png" 是封面图。
+               强烈建议你填一张图在这里！万一视频真的播不出来，
+               至少会显示这张图，而不是留一个大白框。
+            -->
+            <video 
+                autoplay loop muted playsinline preload="auto"
+                x5-video-player-type="h5-page"
+                x5-playsinline="true"
+                webkit-playsinline="true"
+                poster="001.jpg" 
+            >
                 <source src="3444.mp4" type="video/mp4">
             </video>
         </div>
@@ -228,13 +239,24 @@ body::after {
             <img src="108.png" alt="第五张图" loading="lazy">
         </div>
 
-        <!-- 6. 播放视频 -->
+           <!-- 3. 播放视频 (已加强微信兼容性) -->
         <div class="media-box">
-            <video autoplay loop muted playsinline preload="auto">
+            <!-- 
+               poster="1.png" 是封面图。
+               强烈建议你填一张图在这里！万一视频真的播不出来，
+               至少会显示这张图，而不是留一个大白框。
+            -->
+            <video 
+                autoplay loop muted playsinline preload="auto"
+                x5-video-player-type="h5-page"
+                x5-playsinline="true"
+                webkit-playsinline="true"
+                poster="002.jpg" 
+            >
                 <source src="1081.mp4" type="video/mp4">
             </video>
         </div>
-
+        
          <!-- 后续图片... -->
         <div class="media-box"><img src="4.jpg" alt="图" loading="lazy"></div>
         <div class="media-box"><img src="2-01.jpg" alt="图" loading="lazy"></div>
