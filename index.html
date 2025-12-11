@@ -9,11 +9,37 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
 
     <style>
+        /* --- ✨ 全屏防盗水印 --- */
+body::after {
+    content: "© 2025 冯志成  禁止盗用"; /* 这里改你的名字 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 200%;
+    
+    /* 让水印倾斜排列 */
+    transform: rotate(-30deg) translate(-20%, -20%);
+    
+    /* 水印样式：重复平铺 */
+    background-image: url("data:image/svg+xml,%3Csvg width='300' height='300' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50%25' y='50%25' font-size='20' fill='%23000000' fill-opacity='0.05' text-anchor='middle' dominant-baseline='middle' transform='rotate(-45, 150, 150)'%3E%C2%A9%202025%20冯志成%20禁止盗用%3C/text%3E%3C/svg%3E");
+    
+    /* 极低透明度，不影响观看，但截图能看见 */
+    opacity: 1; 
+    pointer-events: none; /* 让鼠标能穿透水印点击下面的内容 */
+    z-index: 9999; /* 盖在所有内容最上面 */
+}
         body { 
             margin: 0; 
             padding: 0; 
             background-color: #f9f9f9; 
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            
+            /* ✨ 锁1：禁止文字被选中（变蓝） */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         .container { 
             max-width: 800px; 
@@ -22,15 +48,12 @@
             background-color: #ffffff; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
             
-            /* ✨ 核心：默认高斯模糊 20px */
+            /* 默认高斯模糊 */
             filter: blur(20px);
-            /* ✨ 过渡动画 1.5秒 */
             transition: filter 1.5s ease-out;
-            /* 初始透明度稍微低一点，配合模糊更自然 */
             opacity: 0.8;
         }
 
-        /* ✨ 当加载完成后，变成清晰状态 */
         .container.loaded-clear {
             filter: blur(0);
             opacity: 1;
@@ -63,6 +86,12 @@
             animation: fadeIn 0.6s ease-in;
             object-fit: cover; 
             background-color: #ffffff; 
+            
+            /* ✨ 锁2：禁止图片被拖拽 */
+            -webkit-user-drag: none;
+            user-drag: none;
+            /* 禁止鼠标事件（可选，如果加了这个连右键菜单都弹不出来，但也无法点击暂停视频） */
+            /* pointer-events: none;  <-- 视频需要点击，所以这里不加这句 */
         }
 
         @keyframes fadeIn {
@@ -98,7 +127,6 @@
             position: relative;
         }
 
-        /* 奔跑的小猫 */
         .running-cat {
             position: absolute;
             right: -20px; 
@@ -109,6 +137,8 @@
             background: transparent !important; 
             box-shadow: none !important; 
             animation: none !important; 
+            /* 也要禁止拖拽小猫 */
+            -webkit-user-drag: none;
         }
         .progress-container img {
             display: inline-block;
@@ -126,7 +156,6 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            /* 工具栏本身不需要模糊，所以放在 container 外面 */
         }
 
         .tool-btn {
@@ -168,7 +197,10 @@
         .wechat-btn:hover .qr-popup { display: block; }
     </style>
 </head>
-<body>
+
+<!-- ✨ 锁3：在 body 标签里加上这三个指令，彻底封死右键和拖拽 -->
+<body oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
+    
     <div class="container">
 
         <!-- 1. 第一张图 -->
@@ -256,7 +288,6 @@
     </div>
 
     <script>
-        // --- 监听滚动，控制进度条 ---
         window.onscroll = function() {
             var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
             var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
@@ -264,18 +295,14 @@
             document.getElementById("myBar").style.width = scrolled + "%";
         };
 
-        // --- 回到顶部 ---
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // --- ✨ 开屏高斯模糊移除逻辑 ---
         window.addEventListener('load', function() {
-            // 当所有资源加载完，移除模糊
             document.querySelector('.container').classList.add('loaded-clear');
         });
         
-        // 保底：3秒后强制变清晰（防止网太慢一直糊着）
         setTimeout(function() {
             document.querySelector('.container').classList.add('loaded-clear');
         }, 3000);
