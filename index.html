@@ -9,25 +9,24 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
 
     <style>
-        /* --- ✨ 全屏防盗水印 --- */
+/* --- ✨ 全屏防盗水印 (已更新内容) --- */
 body::after {
-    content: "© fengchicheng"; /* 这里改你的名字 */
+    content: ""; /* 这里留空即可 */
     position: fixed;
     top: 0;
     left: 0;
     width: 200%;
     height: 200%;
     
-    /* 让水印倾斜排列 */
+    /* 让水印倾斜 */
     transform: rotate(-30deg) translate(-20%, -20%);
     
-    /* 水印样式：重复平铺 */
-    background-image: url("data:image/svg+xml,%3Csvg width='300' height='300' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50%25' y='50%25' font-size='20' fill='%23000000' fill-opacity='0.05' text-anchor='middle' dominant-baseline='middle' transform='rotate(-45, 150, 150)'%3E%C2%A9%202025%20冯志成%20禁止盗用%3C/text%3E%3C/svg%3E");
+    /* 👇 真正的文字藏在这里面 */
+    background-image: url("data:image/svg+xml,%3Csvg width='300' height='300' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50%25' y='50%25' font-size='20' fill='%23000000' fill-opacity='0.05' text-anchor='middle' dominant-baseline='middle' transform='rotate(-45, 150, 150)'%3E27届-fengzhicheng%3C/text%3E%3C/svg%3E");
     
-    /* 极低透明度，不影响观看，但截图能看见 */
     opacity: 1; 
-    pointer-events: none; /* 让鼠标能穿透水印点击下面的内容 */
-    z-index: 9999; /* 盖在所有内容最上面 */
+    pointer-events: none;
+    z-index: 9999;
 }
         body { 
             margin: 0; 
