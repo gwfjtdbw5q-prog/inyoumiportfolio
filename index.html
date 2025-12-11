@@ -2,55 +2,74 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 这一行决定了页面在手机/电脑上是否能缩放。你现在的写法是允许缩放的，非常完美！ -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 1. SEO 与分享优化：发给面试官时，链接卡片会显示这段话 -->
+    <meta name="description" content="你好，这是我的 2025 作品集，包含 UI 设计与动态视觉作品。">
+    <meta property="og:title" content="我的作品集 2025">
+    <meta property="og:description" content="点击查看我的最新设计作品">
+    
+    <!-- 2. 网页图标：用一个 Emoji 当图标，不用做图，既可爱又省事 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
+
     <title>我的作品集 2025</title>
     <style>
-        /* --- CSS 样式 --- */
         body { 
             margin: 0; 
             padding: 0; 
-            background-color: #ffffff; 
+            background-color: #f5f5f5; /* 背景改淡灰色，更有层次感 */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
         .container { 
-            max-width: 100%; 
+            max-width: 800px; /* 限制最大宽度，防止在大屏幕上图片大得吓人 */
             margin: 0 auto; 
-            /* 底部留白，防止内容贴底 */
-            padding-bottom: 50px;
+            padding-bottom: 80px;
+            background-color: #ffffff; /* 内容区白色 */
+            box-shadow: 0 0 20px rgba(0,0,0,0.05); /* 加一点点阴影，更精致 */
         }
         
-        /* 让视频和图片自适应宽度 */
+        /* 3. 图片加载占位：图片没加载出来时，显示浅灰色，防止页面乱跳 */
         video, img { 
             width: 100%; 
             display: block; 
-            /* 图片之间的间距 5px */
-            margin-bottom: 5px; 
+            margin-bottom: 0; /* 图片无缝拼接 */
+            background-color: #eeeeee; /* 占位背景色 */
+            min-height: 200px; /* 最小高度，避免加载时高度塌陷 */
+            object-fit: cover;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 600px) {
+            .container {
+                width: 100%;
+                box-shadow: none;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
 
-        <!-- 1. 第一张图 -->
-        <img src="1.png" alt="第一张图">
+        <!-- 1. 第一张图 (高优先级) -->
+        <img src="images/1.png" alt="封面" fetchpriority="high">
 
         <!-- 2. 第二张图 -->
-        <img src="2.png" alt="第二张图">          
+        <img src="images/2.png" alt="作品展示" loading="lazy">          
         
-        <!-- 3. 播放视频 -->
-        <video autoplay loop muted playsinline>
-            <source src="3444.mp4" type="video/mp4">
+        <!-- 3. 视频 (自动播放) -->
+        <video autoplay loop muted playsinline preload="auto">
+            <source src="images/3444.mp4" type="video/mp4">
         </video>
 
         <!-- 4. 第四张图 -->
-        <img src="Frame 24.png" alt="第四张图">
+        <img src="images/Frame 24.png" alt="细节展示" loading="lazy">
 
-         <!-- 4. 第四张图 -->
-        <img src="108.png" alt="第四张图">
+         <!-- 5. 第五张图 -->
+        <img src="images/108.png" alt="其他作品" loading="lazy">
 
-        <!-- 3. 播放视频 -->
-        <video autoplay loop muted playsinline>
-            <source src="1081.mp4" type="video/mp4">
+        <!-- 6. 视频 -->
+        <video autoplay loop muted playsinline preload="auto">
+            <source src="images/1081.mp4" type="video/mp4">
         </video>
         
     </div>
